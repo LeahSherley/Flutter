@@ -9,5 +9,5 @@
 - Users can mark word pairs as favorites and view them on the Favorites screen.
 
 ## Screenshots
-![HomePage](/app_screensots/Screenshot_20240502-131919.jpg)
+![HomePage](/app_screenshots/Screenshot_20240502-131919.jpg)
 ![Favorite](/app_screenshots/Screenshot_20240502-131928.jpg)
