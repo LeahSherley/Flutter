@@ -1,18 +1,15 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+    return ProviderScope(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Word Pair',
@@ -27,6 +24,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+final myAppStateProvider = ChangeNotifierProvider((ref) => MyAppState());
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
@@ -55,25 +54,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = GeneratorPage();
-      case 1:
-        page = FavoritesPage();
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
-
-return LayoutBuilder(builder: (context, constraints) {
+    return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Row(
           children: [
             SafeArea(
               child: NavigationRail(
-                extended: constraints.maxWidth >= 600,  // ← Here.
+                extended: constraints.maxWidth >= 600,
                 destinations: [
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
@@ -95,7 +85,7 @@ return LayoutBuilder(builder: (context, constraints) {
             Expanded(
               child: Container(
                 color: Theme.of(context).colorScheme.primaryContainer,
-                child: page,
+                child: selectedIndex == 0 ? GeneratorPage() : FavoritesPage(),
               ),
             ),
           ],
@@ -105,19 +95,11 @@ return LayoutBuilder(builder: (context, constraints) {
   }
 }
 
-
-class GeneratorPage extends StatelessWidget {
+class GeneratorPage extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appState = ref.watch(myAppStateProvider);
+    final pair = appState.current;
 
     return Center(
       child: Column(
@@ -130,15 +112,17 @@ class GeneratorPage extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  appState.toggleFavorite();
+                  ref.read(myAppStateProvider.notifier).toggleFavorite();
                 },
-                icon: Icon(icon),
+                icon: appState.favorites.contains(pair)
+                    ? Icon(Icons.favorite)
+                    : Icon(Icons.favorite_border),
                 label: Text('Like'),
               ),
               SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  appState.getNext();
+                  ref.read(myAppStateProvider.notifier).getNext();
                 },
                 child: Text('Next'),
               ),
@@ -151,15 +135,14 @@ class GeneratorPage extends StatelessWidget {
 }
 
 class BigCard extends StatelessWidget {
-  const BigCard({super.key, required this.pair});
+  const BigCard({Key? key, required this.pair}) : super(key: key);
   final WordPair pair;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
+    final style = theme.textTheme.headlineSmall!.copyWith(
       color: theme.colorScheme.onPrimary,
-      fontSize: 20,
     );
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -168,7 +151,7 @@ class BigCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            pair.asLowerCase,
+            pair.asPascalCase,
             style: style,
             semanticsLabel: "${pair.first} ${pair.second}",
           ),
@@ -178,10 +161,10 @@ class BigCard extends StatelessWidget {
   }
 }
 
-class FavoritesPage extends StatelessWidget {
+class FavoritesPage extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appState = ref.watch(myAppStateProvider);
 
     if (appState.favorites.isEmpty) {
       return Center(
@@ -193,13 +176,12 @@ class FavoritesPage extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
+          child: Text('You have ${appState.favorites.length} favorites:'),
         ),
         for (var pair in appState.favorites)
           ListTile(
             leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
+            title: Text(pair.asPascalCase),
           ),
       ],
     );

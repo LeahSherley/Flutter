@@ -1,16 +1,12 @@
-# namer_app
+# WordPair Generator
 
-A new Flutter project.
+WordPair App is a simple Flutter application that allows users to generate random word pairs and mark their favorites. This app is developed as part of a Flutter code lab and demonstrates state management using Riverpod. You can find the code lab tutorial [here.](https://docs.flutter.dev/get-started/codelab)
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+The app generates random word pairs using the English Words package.
+Users can mark word pairs as favorites and view them on the Favorites screen.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Screenshots
+![HomePage](/app_screensots/Screenshot_20240502-131919.jpg)
+![Favorite](/app_screenshots/Screenshot_20240502-131928.jpg)
